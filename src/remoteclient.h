@@ -23,6 +23,8 @@
 #define RCSS_REMOTECLIENT_H
 
 #include "compress.h"
+#include <string>
+class MessageStreamBuf;
 
 #include <rcss/net/udpsocket.hpp>
 
@@ -43,6 +45,7 @@ private:
     rcss::net::SocketStreamBuf * M_socket_buf;
     rcss::gz::gzstreambuf * M_gz_buf;
     std::ostream * M_transport;
+    MessageStreamBuf * M_message_buf;
     int M_comp_level;
 
 #ifdef HAVE_LIBZ
@@ -72,6 +75,10 @@ public:
                           const size_t & len );
 
 protected:
+    friend class MessageStreamBuf;
+    virtual bool captureMessages() const { return false; }
+    virtual void sentMessage( const std::string & ) {}
+
     void processMsg( char * msg,
                      const size_t & len );
 

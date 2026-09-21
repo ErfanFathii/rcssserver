@@ -47,7 +47,7 @@ Stadium Std;
 void
 sigHandle( int )
 {
-    Std.finalize( "Server Killed. Exiting..." );
+    Std.requestShutdown();
 }
 
 }
@@ -65,7 +65,8 @@ main( int argc, char *argv[] )
         return 1;
     }
 
-    struct sigaction sig_action;
+    struct sigaction sig_action = {};
+    sigemptyset( &sig_action.sa_mask );
     sig_action.sa_handler = &sigHandle;
     sig_action.sa_flags = 0;
     if ( sigaction( SIGINT, &sig_action, nullptr ) != 0
@@ -98,6 +99,9 @@ main( int argc, char *argv[] )
     std::cout << "\nHit CTRL-C to exit\n";
 
     timer->run();
+
+    // Close logs only after in-flight commands and outgoing messages complete.
+    Std.finalize( "Server stopped. Exiting..." );
 
     ServerParam::instance().clear();
 

@@ -229,6 +229,8 @@ public:
     //
     // send messages
     //
+    bool captureMessages() const override;
+    void sentMessage( const std::string & message ) override;
     void sendInit();
     void sendReconnect();
     void send( const char * msg );
@@ -395,6 +397,9 @@ public:
     // command state
     //
     bool doneReceived() const { return M_done_received; }
+    bool commandDone() const { return M_command_done; }
+    const Leg & leftLeg() const { return M_left_leg; }
+    const Leg & rightLeg() const { return M_right_leg; }
 
     bool kicked() const { return M_kick_cycles >= 0; }
     bool dashed() const { return M_dash_cycles >= 0; }

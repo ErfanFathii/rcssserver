@@ -24,6 +24,7 @@
 #endif
 
 #include "player.h"
+#include "researchlogger.h"
 
 #include "logger.h"
 #include "coach.h"
@@ -528,6 +529,10 @@ void
 Player::parseMsg( char * msg,
                   const size_t & len )
 {
+    if ( len == 0 ) return;
+    auto & research = ResearchLogger::instance();
+    const std::string counts_before = research.enabled() ? research.counters( *this ) : "";
+    research.received( M_stadium, *this, std::string( msg, len ) );
     char * command = msg;
     if ( command[ len - 1 ] != 0 )
     {
@@ -552,6 +557,7 @@ Player::parseMsg( char * msg,
         send( "(error illegal_command_form)" );
         std::cerr << "Error parsing >" << command << "<\n";
     }
+    research.commandResult( M_stadium, *this, counts_before );
 }
 
 bool
@@ -2386,8 +2392,25 @@ Player::synch_see()
 void
 Player::gaussian_see()
 {
+    if ( ServerParam::instance().allPlayersVisible() )
+    {
+        send( "(error gaussian_see_unsupported_in_all_players_visible)" );
+        return;
+    }
     M_gaussian_see = true;
     send( "(ok gaussian_see)" );
+}
+
+bool
+Player::captureMessages() const
+{
+    return ResearchLogger::instance().enabled();
+}
+
+void
+Player::sentMessage( const std::string & message )
+{
+    ResearchLogger::instance().sent( M_stadium, *this, message );
 }
 
 void
@@ -2413,7 +2436,7 @@ Player::sendReconnect()
 void
 Player::sendVisual()
 {
-    if ( ! M_synch_see )
+    if ( ! M_synch_see && ! ServerParam::instance().allPlayersVisible() )
     {
         M_observer->sendVisual();
     }
@@ -2422,7 +2445,7 @@ Player::sendVisual()
 void
 Player::sendSynchVisual()
 {
-    if ( M_synch_see )
+    if ( M_synch_see || ServerParam::instance().allPlayersVisible() )
     {
         M_observer->sendVisual();
     }

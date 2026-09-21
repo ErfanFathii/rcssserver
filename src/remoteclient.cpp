@@ -35,11 +35,47 @@
 #include <cstring>
 
 
+// Forward exactly the same bytes and flushes to the existing transport. Capture
+// plaintext above compression so the log also works for compressed clients.
+class MessageStreamBuf : public std::streambuf {
+    RemoteClient & M_client;
+    std::streambuf * M_target;
+    std::string M_message;
+public:
+    MessageStreamBuf( RemoteClient & client, std::streambuf * target )
+        : M_client( client ), M_target( target ) {}
+    void target( std::streambuf * value ) { M_target = value; }
+protected:
+    std::streamsize xsputn( const char * s, std::streamsize n ) override
+    {
+        const auto written = M_target->sputn( s, n );
+        if ( M_client.captureMessages() ) M_message.append( s, written );
+        return written;
+    }
+    int_type overflow( int_type c ) override
+    {
+        if ( traits_type::eq_int_type( c, traits_type::eof() ) ) return traits_type::not_eof( c );
+        const auto result = M_target->sputc( traits_type::to_char_type( c ) );
+        if ( ! traits_type::eq_int_type( result, traits_type::eof() ) && M_client.captureMessages() )
+            M_message += traits_type::to_char_type( c );
+        return result;
+    }
+    int sync() override
+    {
+        const int result = M_target->pubsync();
+        std::string message;
+        message.swap( M_message );
+        if ( result == 0 && ! message.empty() ) M_client.sentMessage( message );
+        return result;
+    }
+};
+
 RemoteClient::RemoteClient()
     : M_socket()
     , M_socket_buf( nullptr )
     , M_gz_buf( nullptr )
     , M_transport( nullptr )
+    , M_message_buf( nullptr )
     , M_comp_level( -1 )
     , M_enforce_dedicated_port( false )
 {
@@ -76,6 +112,9 @@ RemoteClient::close()
         delete M_transport;
         M_transport = nullptr;
     }
+
+    delete M_message_buf;
+    M_message_buf = nullptr;
 
     if ( M_gz_buf )
     {
@@ -129,7 +168,8 @@ RemoteClient::open()
     }
 
     M_socket_buf = new rcss::net::SocketStreamBuf( M_socket );
-    M_transport = new std::ostream( M_socket_buf );
+    M_message_buf = new MessageStreamBuf( *this, M_socket_buf );
+    M_transport = new std::ostream( M_message_buf );
     //M_transport->setLevel( M_comp_level );
     return 0;
 }
@@ -240,11 +280,11 @@ RemoteClient::setCompressionLevel( const int level )
             M_gz_buf = new rcss::gz::gzstreambuf( *M_socket_buf );
         }
         M_gz_buf->setLevel( level );
-        M_transport->rdbuf( M_gz_buf );
+        M_message_buf->target( M_gz_buf );
     }
     else
     {
-        M_transport->rdbuf( M_socket_buf );
+        M_message_buf->target( M_socket_buf );
     }
 //     if ( level < 0 )
 //     {

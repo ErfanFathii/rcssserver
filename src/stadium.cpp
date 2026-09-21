@@ -24,6 +24,7 @@
 #endif
 
 #include "stadium.h"
+#include "researchlogger.h"
 
 #include "audio.h"
 #include "coach.h"
@@ -948,6 +949,7 @@ Stadium::sendDisp()
     }
 
     // record game log
+    ResearchLogger::instance().state( *this );
     Logger::instance().writeGameLog( *this );
     Logger::instance().flush();
 
@@ -2531,7 +2533,7 @@ Stadium::doSendThink()
             }
         }
     }
-    while ( done == DS_FALSE );
+    while ( done == DS_FALSE && isAlive() );
 
     if ( done != DS_TRUE_BUT_INCOMPLETE )
     {

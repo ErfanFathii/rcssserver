@@ -509,6 +509,8 @@ private:
     std::string M_landmark_file;
 
     bool M_send_comms;
+    std::string M_observation_mode;
+    std::string M_json_log_file;
     bool M_text_logging;
     bool M_game_logging;
     int M_game_log_version;
@@ -873,6 +875,10 @@ public:
     const std::string & landmarkFile() const { return M_landmark_file; }
 
     bool sendComms() const { return M_send_comms; }
+
+    const std::string & observationMode() const { return M_observation_mode; }
+    bool allPlayersVisible() const { return M_observation_mode == "all_players_visible"; }
+    const std::string & jsonLogFile() const { return M_json_log_file; }
 
     bool textLogging() const { return M_text_logging; }
     bool gameLogging() const { return M_game_logging; }

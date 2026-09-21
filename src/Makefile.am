@@ -30,6 +30,7 @@ rcssserver_SOURCES = \
 	playerparam.cpp \
 	object.cpp \
 	referee.cpp \
+	researchlogger.cpp \
 	remoteclient.cpp \
 	resultsaver.cpp \
 	serializer.cpp \
@@ -104,6 +105,7 @@ noinst_HEADERS = \
 	playerparam.h \
 	random.h \
 	referee.h \
+	researchlogger.h \
 	remoteclient.h \
 	resultsaver.hpp \
 	sender.h \

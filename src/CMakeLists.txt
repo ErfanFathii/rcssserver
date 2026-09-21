@@ -47,6 +47,7 @@ add_executable(RCSSServer
     playerparam.cpp
     object.cpp
     referee.cpp
+    researchlogger.cpp
     remoteclient.cpp
     resultsaver.cpp
     serializer.cpp

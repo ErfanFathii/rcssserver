@@ -1,3 +1,5 @@
+> **Cyrus observation research fork:** see [RESEARCH.md](RESEARCH.md) for standard and 360° per-cycle modes, JSON logging, configuration, and tests. Based on rcssserver 19.0.0.
+
 # RoboCup Soccer Simulator Server
 
 [![CircleCI](https://circleci.com/gh/rcsoccersim/rcssserver/tree/master.svg?style=svg)](https://circleci.com/gh/rcsoccersim/rcssserver/tree/master)

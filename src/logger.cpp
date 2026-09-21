@@ -24,6 +24,7 @@
 #endif
 
 #include "logger.h"
+#include "researchlogger.h"
 
 #include "player.h"
 #include "coach.h"
@@ -218,6 +219,7 @@ Logger::setSenders( const Stadium & stadium )
 bool
 Logger::open( const Stadium & stadium )
 {
+    if ( ! ResearchLogger::instance().open( stadium ) ) return false;
     if ( ServerParam::instance().gameLogging() )
     {
         if ( ! openGameLog( stadium ) )
@@ -249,6 +251,7 @@ Logger::open( const Stadium & stadium )
 void
 Logger::close( const Stadium & stadium )
 {
+    ResearchLogger::instance().close();
     renameLogs( stadium );
 
     closeGameLog();

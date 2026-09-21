@@ -224,21 +224,21 @@ public:
 private:
     void sendFlag( const PObject & obj )
       {
-          self().highQuality()
+          ( self().highQuality() || ServerParam::instance().allPlayersVisible() )
               ? sendHighFlag( obj )
               : sendLowFlag( obj );
       }
 
     void sendBall( const MPObject & obj )
       {
-          self().highQuality()
+          ( self().highQuality() || ServerParam::instance().allPlayersVisible() )
               ? sendHighBall( obj )
               : sendLowBall( obj );
       }
 
     void sendPlayer( const Player & obj )
       {
-          self().highQuality()
+          ( self().highQuality() || ServerParam::instance().allPlayersVisible() )
               ? sendHighPlayer( obj )
               : sendLowPlayer( obj );
       }
@@ -248,7 +248,7 @@ private:
                         const double & sight_2_line_ang,
                         const double & player_2_line )
       {
-          self().highQuality()
+          ( self().highQuality() || ServerParam::instance().allPlayersVisible() )
               ? serializeHighLine( name, dir, sight_2_line_ang, player_2_line )
               : serializeLowLine( name, dir, sight_2_line_ang, player_2_line );
       }

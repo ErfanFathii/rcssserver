@@ -365,7 +365,8 @@ VisualSenderPlayerV1::sendVisual()
 {
     incSendCount();
 
-    if ( sendCount() >= self().visualSendInterval() )
+    if ( ServerParam::instance().allPlayersVisible()
+         || sendCount() >= self().visualSendInterval() )
     {
         resetSendCount();
     }
@@ -481,8 +482,9 @@ VisualSenderPlayerV1::sendLowFlag( const PObject & flag )
     const double ang = calcRadDir( flag );
     const double un_quant_dist = calcUnQuantDist( flag );
 
-    if ( std::fabs( ang ) < self().visibleAngle() * 0.5
-         && un_quant_dist < self().playerType()->landMaxObservationLength() )
+    if ( ServerParam::instance().allPlayersVisible()
+         || ( std::fabs( ang ) < self().visibleAngle() * 0.5
+              && un_quant_dist < self().playerType()->landMaxObservationLength() ) )
     {
         serializer().serializeVisualObject( transport(),
                                             calcName( flag ),
@@ -503,8 +505,9 @@ VisualSenderPlayerV1::sendHighFlag( const PObject & flag )
     const double actual_dist = calcUnQuantDist( flag );
     const double noisy_dist = calcNoisyDistLandmark( flag, actual_dist );
 
-    if ( std::fabs( ang ) < self().visibleAngle() * 0.5
-         && actual_dist < self().playerType()->landMaxObservationLength() )
+    if ( ServerParam::instance().allPlayersVisible()
+         || ( std::fabs( ang ) < self().visibleAngle() * 0.5
+              && actual_dist < self().playerType()->landMaxObservationLength() ) )
     {
         if ( decide( calcNoFlagVelProb( noisy_dist ) ) )
         {
@@ -542,8 +545,9 @@ VisualSenderPlayerV1::sendLowBall( const MPObject & ball )
     const double ang = calcRadDir( ball );
     const double un_quant_dist = calcUnQuantDist( ball );
 
-    if( std::fabs( ang ) < self().visibleAngle() * 0.5
-        && un_quant_dist < self().playerType()->ballMaxObservationLength())
+    if ( ServerParam::instance().allPlayersVisible()
+         || ( std::fabs( ang ) < self().visibleAngle() * 0.5
+              && un_quant_dist < self().playerType()->ballMaxObservationLength() ) )
     {
         serializer().serializeVisualObject( transport(),
                                             calcName( ball ),
@@ -565,8 +569,9 @@ VisualSenderPlayerV1::sendHighBall( const MPObject & ball )
     const double actual_dist = calcUnQuantDist( ball );
     const double noisy_dist = noisyObservation().calcDist( actual_dist, ball.pos().distance( cachedFocusPoint() ) );
 
-    if ( std::fabs( ang ) < self().visibleAngle() * 0.5
-         && actual_dist < self().playerType()->ballMaxObservationLength() )
+    if ( ServerParam::instance().allPlayersVisible()
+         || ( std::fabs( ang ) < self().visibleAngle() * 0.5
+              && actual_dist < self().playerType()->ballMaxObservationLength() ) )
     {
         if ( decide( calcNoBallVelProb( noisy_dist ) ) )
         {
@@ -603,8 +608,9 @@ VisualSenderPlayerV1::sendLowPlayer( const Player & player )
     const double ang = calcRadDir( player );
     const double actual_dist = calcUnQuantDist( player );
 
-    if ( std::fabs( ang ) < self().visibleAngle() * 0.5
-         && actual_dist < self().playerType()->playerMaxObservationLength() )
+    if ( ServerParam::instance().allPlayersVisible()
+         || ( std::fabs( ang ) < self().visibleAngle() * 0.5
+              && actual_dist < self().playerType()->playerMaxObservationLength() ) )
     {
         const double noisy_dist = calcNoisyDist( player, actual_dist );
 
@@ -645,8 +651,9 @@ VisualSenderPlayerV1::sendHighPlayer( const Player & player )
     const double actual_dist = self().pos().distance( player.pos() );
     const double noisy_dist = calcNoisyDist( player, actual_dist );
 
-    if ( std::fabs( ang ) < self().visibleAngle() * 0.5
-         && actual_dist < self().playerType()->playerMaxObservationLength() )
+    if ( ServerParam::instance().allPlayersVisible()
+         || ( std::fabs( ang ) < self().visibleAngle() * 0.5
+              && actual_dist < self().playerType()->playerMaxObservationLength() ) )
     {
         if ( decide( calcNoTeamProb( noisy_dist ) ) )
         {

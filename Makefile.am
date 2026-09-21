@@ -10,6 +10,10 @@ SUBDIRS = \
 	.
 
 EXTRA_DIST = \
+	RESEARCH.md \
+	configs/standard.conf \
+	configs/all_players_visible.conf \
+	tests/research_integration.py \
 	README.md \
 	CMakeLists.txt \
 	config.h.cmake

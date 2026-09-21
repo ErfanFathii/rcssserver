@@ -503,6 +503,14 @@ ServerParam::init( const int & argc,
         return false;
     }
 
+    if ( instance().observationMode() != "standard"
+         && ! instance().allPlayersVisible() )
+    {
+        std::cerr << "Invalid observation_mode: expected standard or all_players_visible\n";
+        instance().clear();
+        return false;
+    }
+
     instance().setSlowDownFactor();
 
     return true;
@@ -959,6 +967,11 @@ ServerParam::addParams()
     addParam( "land_focus_dist_noise_rate", M_land_focus_dist_noise_rate, "", 19 );
 
     // XXX
+    addParam( "observation_mode", M_observation_mode,
+              "standard or all_players_visible (360-degree quantized see every cycle)", 999 );
+    addParam( "json_log_file", M_json_log_file,
+              "Research JSON event log path; empty disables logging. Existing files are rejected.", 999 );
+
     // addParam( "random_seed", M_random_seed, "", 999 );
     // addParam( "long_kick_power_factor", M_long_kick_power_factor, "", 999 );
     // addParam( "long_kick_delay", M_long_kick_delay, "", 999 );
@@ -1354,6 +1367,8 @@ ServerParam::setDefaults()
     M_landmark_file = LANDMARK_FILE;
 
     M_send_comms = SEND_COMMS;
+    M_observation_mode = "standard";
+    M_json_log_file = "";
     M_text_logging = TEXT_LOGGING;
     M_game_logging = GAME_LOGGING;
     M_game_log_version = GAME_LOG_VERSION;

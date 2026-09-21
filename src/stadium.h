@@ -22,6 +22,8 @@
 #ifndef RCSSSERVER_STADIUM_H
 #define RCSSSERVER_STADIUM_H
 
+#include <csignal>
+
 #include "timeable.h"
 
 
@@ -86,6 +88,7 @@ protected:
 
 protected:
     bool M_alive;
+    volatile std::sig_atomic_t M_shutdown_requested = 0;
 
     rcss::net::UDPSocket M_player_socket;
     rcss::net::UDPSocket M_offline_coach_socket;
@@ -148,11 +151,12 @@ public:
     bool init();
 
     void finalize( const std::string & msg );
+    void requestShutdown() { M_shutdown_requested = 1; }
 
     virtual
     bool isAlive() override
       {
-          return M_alive;
+          return M_alive && ! M_shutdown_requested;
       }
 
     PlayMode playmode() const
