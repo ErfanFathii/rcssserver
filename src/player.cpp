@@ -2392,11 +2392,6 @@ Player::synch_see()
 void
 Player::gaussian_see()
 {
-    if ( ServerParam::instance().allPlayersVisible() )
-    {
-        send( "(error gaussian_see_unsupported_in_all_players_visible)" );
-        return;
-    }
     M_gaussian_see = true;
     send( "(ok gaussian_see)" );
 }

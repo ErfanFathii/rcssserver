@@ -172,18 +172,22 @@ def run(binary, mode, directory, synch=False):
             times = [e['time'] for e in frames]
             assert all(b == a + 1 for a, b in zip(times, times[1:])), times
             for e in frames:
-                # Identity may be hidden, but no active player may disappear.
+                # Every active player must have an explicit team and uniform number.
                 count = len(re.findall(r'\(\([pP](?:\s|\))', e['message']))
                 assert count == 21, (c.key, count, e['message'])
+                labelled = re.findall(r'\(\(p "[^"]+" \d+(?: goalie)?\)', e['message'])
+                assert len(labelled) == 21, (c.key, e['message'])
                 assert re.search(r'\(\(b\) [\d.e+-]+ -?[\d.e+-]+', e['message'])
         elif c.key[1] == 2:  # v18 normal: every second cycle
             times = [e['time'] for e in frames]
             assert all(b - a == 2 for a, b in zip(times, times[1:])), times
     if mode == 'all_players_visible':
-        assert any('gaussian_see_unsupported' in e['message'] for e in observations)
+        assert any('(ok gaussian_see)' in e['message'] for e in observations)
+        assert not any('gaussian_see_unsupported' in e['message'] for e in observations)
         # Validate ball quantization from exact state, not a separately rounded fullstate.
         nonzero_error = 0
         behind = 0
+        gaussian_frames = 0
         for e in all_see:
             state = states[e['state_id']]
             p = next(p for p in state['players'] if (p['side'], p['unum']) == (e['side'], e['unum']))
@@ -192,10 +196,14 @@ def run(binary, mode, directory, synch=False):
             expected = round(math.exp(round(math.log(distance + 1e-10) / .1) * .1) / .1) * .1
             match = re.search(r'\(\(b\) ([\d.e+-]+) (-?[\d.e+-]+)', e['message'])
             actual, angle = map(float, match.groups())
-            assert abs(actual - expected) < 1e-6, (actual, expected, distance)
+            if p['gaussian_see']:
+                gaussian_frames += 1
+                assert math.isfinite(actual) and actual >= 0
+            else:
+                assert abs(actual - expected) < 1e-6, (actual, expected, distance)
             nonzero_error += abs(actual-distance) > .001
             behind += abs(angle) > 90
-        assert nonzero_error and behind
+        assert nonzero_error and behind and gaussian_frames
     else:
         assert any('(ok gaussian_see)' in e['message'] for e in observations)
         assert any(len(re.findall(r'\(\([pP](?:\s|\))', e['message'])) < 21 for e in all_see)

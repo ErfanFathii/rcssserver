@@ -614,7 +614,8 @@ VisualSenderPlayerV1::sendLowPlayer( const Player & player )
     {
         const double noisy_dist = calcNoisyDist( player, actual_dist );
 
-        if ( decide( calcNoTeamProb( noisy_dist ) ) )
+        if ( ! ServerParam::instance().allPlayersVisible()
+             && decide( calcNoTeamProb( noisy_dist ) ) )
         {
             serializer().serializeVisualObject( transport(),
                                                 calcTFarName( player ),
@@ -622,7 +623,8 @@ VisualSenderPlayerV1::sendLowPlayer( const Player & player )
         }
         else
         {
-            if ( decide( calcNoUnumProb( noisy_dist ) ) )
+            if ( ! ServerParam::instance().allPlayersVisible()
+                 && decide( calcNoUnumProb( noisy_dist ) ) )
             {
                 serializer().serializeVisualObject( transport(),
                                                     calcUFarName( player ),
@@ -655,7 +657,8 @@ VisualSenderPlayerV1::sendHighPlayer( const Player & player )
          || ( std::fabs( ang ) < self().visibleAngle() * 0.5
               && actual_dist < self().playerType()->playerMaxObservationLength() ) )
     {
-        if ( decide( calcNoTeamProb( noisy_dist ) ) )
+        if ( ! ServerParam::instance().allPlayersVisible()
+             && decide( calcNoTeamProb( noisy_dist ) ) )
         {
             // no team information
             serializer().serializeVisualObject( transport(),
@@ -665,7 +668,8 @@ VisualSenderPlayerV1::sendHighPlayer( const Player & player )
         }
         else
         {
-            if ( decide( calcNoUnumProb( noisy_dist ) ) )
+            if ( ! ServerParam::instance().allPlayersVisible()
+                 && decide( calcNoUnumProb( noisy_dist ) ) )
             {
                 // no unum information
                 serializePlayer( player,

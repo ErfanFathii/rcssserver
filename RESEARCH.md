@@ -2,7 +2,8 @@
 
 This branch adds two operating modes and an optional JSON event log. It is based
 on upstream tag `rcssserver-19.0.0` (`ce870013`), matching the Cyrus research
-baseline. No changes to the team or librcsc are required to connect.
+baseline. Ordinary clients can connect unchanged; the research Cyrus library adapts its
+view memory and Gaussian decoding for this experiment.
 
 ## Build and run
 
@@ -38,13 +39,13 @@ avoid overwriting a previous match. Use a different path for each run.
 |---|---|---|
 | Player/ball/landmark view | Upstream field of view and range limits | Full 360°, no range cutoff |
 | Visual delivery | Upstream schedule and requested view width | One `see` per simulation cycle, including stoppage cycles |
-| Measurement noise | Upstream quantization by default | Same quantization, angular rounding, and velocity noise |
-| Identity/detail hiding with distance | Upstream behavior | Upstream behavior |
+| Measurement noise | Upstream quantization by default | Quantized by default; Gaussian distance noise when requested; angular rounding retained |
+| Identity/detail hiding with distance | Upstream behavior | Team and uniform number retained |
 | Legacy low-quality view request | Upstream behavior | Detailed, noisy observations still sent |
 | Line observations | Upstream behavior | Upstream behavior, for client localization compatibility |
 
 Every **other active player** is included; an agent does not see itself. Player
-identities can still be hidden at long distances. This mode is visibility with
+identities are retained at every distance. This mode is visibility with
 noise, not exact fullstate. Bearings remain relative to body plus neck, so
 objects behind the observer have bearings near ±180°. Landmark and ball
 observations also cover 360°. Lines retain their original directional geometry
@@ -55,10 +56,16 @@ that did not request `synch_see`. It works with both wall-clock and synchronous
 (`server::synch_mode=true`) server timers. `change_view` is still acknowledged
 and reported normally, but cannot reduce the new mode's coverage or cadence.
 
-Gaussian noise is not a new operating mode in this fork. For compatibility,
-`standard` retains upstream's per-player `(gaussian_see)` command. The new mode
-rejects that command with `(error gaussian_see_unsupported_in_all_players_visible)`.
-Cyrus should keep using its normal quantized observations.
+Both modes accept the per-player `(gaussian_see)` command and acknowledge it with
+`(ok gaussian_see)`. Vision coverage and measurement channel are independent.
+Clients that do not request Gaussian retain quantized observations. The research
+collector sets Gaussian distance rates explicitly and disables focus noise.
+
+The coordinated code is available in these three branches:
+
+- [Server](https://github.com/ErfanFathii/rcssserver/tree/research-denoising-only)
+- [Cyrus team and collection guide](https://github.com/ErfanFathii/cyrus-soccer-simulation-team/tree/research-denoising-only/script/research)
+- [Research library fork](https://github.com/ErfanFathii/cyrus-soccer-simulation-lib/tree/research-denoising-only)
 
 ## JSON format
 

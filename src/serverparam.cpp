@@ -968,7 +968,7 @@ ServerParam::addParams()
 
     // XXX
     addParam( "observation_mode", M_observation_mode,
-              "standard or all_players_visible (360-degree quantized see every cycle)", 999 );
+              "standard or all_players_visible (360-degree identified noisy see every cycle)", 999 );
     addParam( "json_log_file", M_json_log_file,
               "Research JSON event log path; empty disables logging. Existing files are rejected.", 999 );
 
