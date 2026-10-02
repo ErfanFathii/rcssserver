@@ -92,9 +92,10 @@ def run(binary, mode, directory, synch=False):
     port = free_ports()
     log = directory / 'match.json'
     console = directory / 'server.log'
+    seed = 2027 + int(mode == 'all_players_visible') + int(synch)
     args = [binary, f'server::port={port}', f'server::coach_port={port+1}',
             f'server::olcoach_port={port+2}', f'server::observation_mode={mode}',
-            f'server::json_log_file={log}', 'server::text_logging=false',
+            f'server::json_log_file={log}', f'server::random_seed={seed}', 'server::text_logging=false',
             'server::game_logging=false', 'server::coach=true', 'server::fullstate_l=false',
             'server::fullstate_r=false', 'server::auto_mode=false',
             'server::synch_mode=' + str(synch).lower()]
@@ -135,6 +136,8 @@ def run(binary, mode, directory, synch=False):
     document = json.loads(log.read_text())
     events = document['events']
     assert document['observation_mode'] == mode
+    assert document['random_seed'] == seed
+    assert f'Using given Simulator Random Seed: {seed}' in console.read_text()
     assert [e['seq'] for e in events] == list(range(1, len(events)+1))
     states = {e['seq']: e for e in events if e['kind'] == 'state'}
     observations = [e for e in events if e['kind'] == 'observation']

@@ -113,6 +113,7 @@ bool ResearchLogger::open( const Stadium & s )
         M_out.imbue( std::locale::classic() );
         M_out << "{\"schema_version\":1,\"server_version\":\"19.0.0\",\"observation_mode\":"
               << quote( ServerParam::instance().observationMode() )
+              << ",\"random_seed\":" << ServerParam::instance().randomSeed()
               << ",\"angle_unit\":\"radian\",\"events\":[\n";
         state( s );
         std::cout << "Research JSON log: " << path << std::endl;

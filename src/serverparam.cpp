@@ -972,7 +972,8 @@ ServerParam::addParams()
     addParam( "json_log_file", M_json_log_file,
               "Research JSON event log path; empty disables logging. Existing files are rejected.", 999 );
 
-    // addParam( "random_seed", M_random_seed, "", 999 );
+    addParam( "random_seed", M_random_seed,
+              "Simulator RNG seed; negative uses startup time. Set distinct seeds for independent research games.", 999 );
     // addParam( "long_kick_power_factor", M_long_kick_power_factor, "", 999 );
     // addParam( "long_kick_delay", M_long_kick_delay, "", 999 );
 }
